@@ -336,12 +336,13 @@ header h1 {
     border: 1px solid var(--border-color);
 }
 
-/* Dashboard Modal */
+/* Dashboard Modal - Melhorias de responsividade */
 .dashboard-modal {
     max-width: 900px;
     max-height: 80vh;
     overflow-y: auto;
     margin: 5% auto;
+    width: 90%;
 }
 
 .dashboard-content {
@@ -544,59 +545,8 @@ header h1 {
     background-color: #5a6268;
 }
 
-/* Melhorias de responsividade */
+/* Media queries específicas para o dashboard */
 @media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .controls {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-    
-    .controls input,
-    .controls select,
-    .controls button {
-        width: 100%;
-        margin: 0;
-    }
-    
-    .header-top {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    
-    .person-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .person-actions {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-    
-    .person-actions button {
-        flex: 1;
-        min-width: 80px;
-    }
-    
-    .attendance-controls {
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-    
-    .attendance-controls button {
-        flex: 1;
-        min-width: 70px;
-    }
-    
     .dashboard-modal {
         width: 95%;
         margin: 2% auto;
@@ -604,9 +554,17 @@ header h1 {
         padding: 15px;
     }
     
-    .person-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+    .dashboard-content {
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-card h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
     }
     
     .filter-row {
@@ -614,51 +572,96 @@ header h1 {
         gap: 10px;
     }
     
-    .form-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .form-actions button {
+    .filter-row select,
+    .filter-row input {
         width: 100%;
+        padding: 12px;
+        font-size: 16px; /* Evita zoom no iOS */
     }
     
-    .notification {
-        right: 10px;
-        left: 10px;
-        max-width: none;
+    .person-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .mini-stat {
+        padding: 6px;
+    }
+    
+    .mini-stat-label {
+        font-size: 10px;
+    }
+    
+    .mini-stat-value {
         font-size: 14px;
+    }
+    
+    .stat-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 12px 0;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
+        align-self: flex-end;
+    }
+    
+    .individual-person {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .person-name {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+    
+    .person-room {
+        font-size: 11px;
+        margin-bottom: 8px;
     }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 5px;
+    .dashboard-modal {
+        width: 98%;
+        margin: 1% auto;
+        max-height: 98vh;
+        padding: 10px;
     }
     
-    header {
-        padding: 15px;
+    .stat-card {
+        padding: 12px;
+    }
+    
+    .stat-card h3 {
+        font-size: 15px;
     }
     
     .person-stats {
         grid-template-columns: 1fr;
     }
     
-    .theme-toggle {
-        width: 40px;
-        height: 40px;
+    .mini-stat {
+        padding: 8px;
     }
     
-    .theme-icon {
+    .close {
+        font-size: 24px;
+        right: 10px;
+        top: 8px;
+    }
+    
+    .modal-content h2 {
         font-size: 18px;
-    }
-    
-    .person-item {
-        padding: 10px;
-    }
-    
-    .modal-content {
-        padding: 15px;
+        margin-bottom: 15px;
+        padding-right: 30px; /* Espaço para o botão fechar */
     }
 }
 

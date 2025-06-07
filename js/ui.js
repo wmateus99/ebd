@@ -82,7 +82,7 @@ class UIManager {
         document.getElementById('importFileInput').addEventListener('change', (e) => this.handleFileImport(e));
         
         // Modal cadastro
-        document.querySelector('.close').addEventListener('click', () => this.closeModal());
+        document.getElementById('addPersonClose').addEventListener('click', () => this.closeModal());
         document.getElementById('cancelBtn').addEventListener('click', () => this.closeModal());
         this.addPersonForm.addEventListener('submit', (e) => this.handleAddPerson(e));
         
