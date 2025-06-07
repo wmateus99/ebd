@@ -544,10 +544,23 @@ header h1 {
     background-color: #5a6268;
 }
 
+/* Melhorias de responsividade */
 @media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
     .controls {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
+    }
+    
+    .controls input,
+    .controls select,
+    .controls button {
+        width: 100%;
+        margin: 0;
     }
     
     .header-top {
@@ -565,24 +578,87 @@ header h1 {
     .person-actions {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .person-actions button {
+        flex: 1;
+        min-width: 80px;
     }
     
     .attendance-controls {
         flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .attendance-controls button {
+        flex: 1;
+        min-width: 70px;
     }
     
     .dashboard-modal {
         width: 95%;
         margin: 2% auto;
         max-height: 95vh;
+        padding: 15px;
     }
     
     .person-stats {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
     
     .filter-row {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-actions button {
+        width: 100%;
+    }
+    
+    .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+    
+    header {
+        padding: 15px;
+    }
+    
+    .person-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .theme-icon {
+        font-size: 18px;
+    }
+    
+    .person-item {
+        padding: 10px;
+    }
+    
+    .modal-content {
+        padding: 15px;
     }
 }
 

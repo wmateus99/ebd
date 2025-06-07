@@ -29,7 +29,7 @@ class UIManager {
     }
 
     initializeTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
+        const savedTheme = localStorage.getItem('theme') || 'light';
         this.setTheme(savedTheme);
     }
 
