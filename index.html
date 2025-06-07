@@ -6,6 +6,8 @@
     <title>Chamada - EBD</title>
     <link rel="shortcut icon" href="./assets/logo.svg" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
+    <!-- Biblioteca para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -32,6 +34,9 @@
                     <div class="dropdown-content">
                         <a href="#" id="dashboardBtn">Dashboard</a>
                         <a href="#" id="addPersonBtn">Cadastrar Pessoa</a>
+                        <a href="#" id="exportDataBtn">Exportar Dados</a>
+                        <a href="#" id="importDataBtn">Importar Dados</a>
+                        <a href="#" id="exportPdfBtn">Relatório PDF</a>
                         <a href="#" id="clearAllBtn">Limpar Lista</a>
                     </div>
                 </div>
@@ -49,6 +54,46 @@
             </div>
         </main>
     </div>
+
+    <!-- Modal para seleção de relatório PDF -->
+    <div id="pdfReportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="pdfReportClose">&times;</span>
+            <h2>📄 Gerar Relatório PDF</h2>
+            <form id="pdfReportForm">
+                <div class="form-group">
+                    <label for="reportYear">Ano:</label>
+                    <select id="reportYear" required>
+                        <!-- Será preenchido dinamicamente -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reportQuarter">Trimestre:</label>
+                    <select id="reportQuarter" required>
+                        <option value="1">1º Trimestre (Jan-Mar)</option>
+                        <option value="2">2º Trimestre (Abr-Jun)</option>
+                        <option value="3">3º Trimestre (Jul-Set)</option>
+                        <option value="4">4º Trimestre (Out-Dez)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reportRoom">Sala:</label>
+                    <select id="reportRoom">
+                        <option value="">Todas as Salas</option>
+                        <option value="Sala Adultos">Sala Adultos</option>
+                        <option value="Sala Jovens">Sala Jovens</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Gerar PDF</button>
+                    <button type="button" id="cancelPdfBtn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Input oculto para importação de arquivos -->
+    <input type="file" id="importFileInput" accept=".json" style="display: none;">
 
     <!-- Modal para cadastro -->
     <div id="addPersonModal" class="modal">
@@ -124,6 +169,7 @@
     <script src="js/storage.js"></script>
     <script src="js/person.js"></script>
     <script src="js/attendance.js"></script>
+    <script src="js/pdf-report.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
 </body>

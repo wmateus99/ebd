@@ -5,11 +5,13 @@ class UIManager {
         this.attendanceManager = attendanceManager;
         this.currentDate = new Date().toISOString().split('T')[0];
         this.dashboardSearchQuery = '';
+        this.pdfGenerator = new PDFReportGenerator(personManager, attendanceManager);
         
         this.initializeElements();
         this.bindEvents();
         this.setCurrentDate();
         this.initializeTheme();
+        this.populateYearOptions();
     }
 
     initializeElements() {
@@ -22,6 +24,8 @@ class UIManager {
         this.dashboardModal = document.getElementById('dashboardModal');
         this.themeToggle = document.getElementById('themeToggle');
         this.dashboardSearchInput = document.getElementById('dashboardSearchInput');
+        this.pdfReportModal = document.getElementById('pdfReportModal');
+        this.pdfReportForm = document.getElementById('pdfReportForm');
     }
 
     initializeTheme() {
@@ -70,6 +74,12 @@ class UIManager {
         document.getElementById('addPersonBtn').addEventListener('click', () => this.openModal());
         document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAll());
         document.getElementById('dashboardBtn').addEventListener('click', () => this.openDashboard());
+        document.getElementById('exportDataBtn').addEventListener('click', () => this.exportData());
+        document.getElementById('importDataBtn').addEventListener('click', () => this.importData());
+        document.getElementById('exportPdfBtn').addEventListener('click', () => this.openPdfReportModal());
+        
+        // Input de arquivo para importação
+        document.getElementById('importFileInput').addEventListener('change', (e) => this.handleFileImport(e));
         
         // Modal cadastro
         document.querySelector('.close').addEventListener('click', () => this.closeModal());
@@ -79,6 +89,11 @@ class UIManager {
         // Modal dashboard
         document.getElementById('dashboardClose').addEventListener('click', () => this.closeDashboard());
         document.getElementById('dashboardRoomFilter').addEventListener('change', () => this.updateIndividualStats());
+        
+        // Modal PDF Report
+        document.getElementById('pdfReportClose').addEventListener('click', () => this.closePdfReportModal());
+        document.getElementById('cancelPdfBtn').addEventListener('click', () => this.closePdfReportModal());
+        this.pdfReportForm.addEventListener('submit', (e) => this.handlePdfReportGeneration(e));
         
         // Pesquisa no dashboard
         this.dashboardSearchInput.addEventListener('input', (e) => {
@@ -93,6 +108,9 @@ class UIManager {
             }
             if (e.target === this.dashboardModal) {
                 this.closeDashboard();
+            }
+            if (e.target === this.pdfReportModal) {
+                this.closePdfReportModal();
             }
         });
     }
@@ -378,6 +396,167 @@ class UIManager {
         if (confirm('Tem certeza que deseja excluir todas as pessoas e registros? Esta ação não pode ser desfeita.')) {
             this.personManager.clearAll();
             this.renderPeopleList();
+        }
+    }
+
+    exportData() {
+        try {
+            const exportedData = Storage.exportData();
+            
+            // Mostrar mensagem de sucesso
+            this.showNotification(
+                `Dados exportados com sucesso!\n` +
+                `Pessoas: ${exportedData.people.length}\n` +
+                `Registros: ${Object.keys(exportedData.attendanceRecords).length} dias`,
+                'success'
+            );
+            
+        } catch (error) {
+            this.showNotification('Erro ao exportar dados: ' + error.message, 'error');
+        }
+    }
+
+    importData() {
+        document.getElementById('importFileInput').click();
+    }
+
+    async handleFileImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        try {
+            const result = await Storage.importData(file);
+            
+            const message = 
+                `Dados importados com sucesso!\n` +
+                `Pessoas: ${result.stats.peopleCount}\n` +
+                `Registros: ${result.stats.recordsCount} dias`;
+            
+            this.showNotification(message, 'success');
+            
+            // Atualizar a interface
+            this.renderPeopleList();
+            
+        } catch (error) {
+            this.showNotification('Erro ao importar dados: ' + error.message, 'error');
+        }
+        
+        // Limpar o input
+        event.target.value = '';
+    }
+
+    showNotification(message, type = 'info') {
+        // Criar elemento de notificação
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: pre-line;
+        `;
+        
+        // Definir cor baseada no tipo
+        switch (type) {
+            case 'success':
+                notification.style.backgroundColor = 'var(--success-color)';
+                break;
+            case 'error':
+                notification.style.backgroundColor = 'var(--danger-color)';
+                break;
+            default:
+                notification.style.backgroundColor = 'var(--accent-color)';
+        }
+        
+        notification.textContent = message;
+        
+        // Adicionar ao DOM
+        document.body.appendChild(notification);
+        
+        // Remover após 5 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+        
+        // Permitir fechar clicando
+        notification.addEventListener('click', () => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        });
+    }
+
+    openPdfReportModal() {
+        this.pdfReportModal.style.display = 'block';
+        this.populateYearOptions();
+    }
+
+    closePdfReportModal() {
+        this.pdfReportModal.style.display = 'none';
+        this.pdfReportForm.reset();
+    }
+
+    populateYearOptions() {
+        const yearSelect = document.getElementById('reportYear');
+        const availableYears = this.pdfGenerator.getAvailableYears();
+        
+        yearSelect.innerHTML = '';
+        
+        if (availableYears.length === 0) {
+            yearSelect.innerHTML = '<option value="">Nenhum registro encontrado</option>';
+            return;
+        }
+        
+        availableYears.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        });
+        
+        // Selecionar o ano atual por padrão
+        const currentYear = new Date().getFullYear();
+        if (availableYears.includes(currentYear)) {
+            yearSelect.value = currentYear;
+        }
+    }
+
+    handlePdfReportGeneration(e) {
+        e.preventDefault();
+        
+        const year = parseInt(document.getElementById('reportYear').value);
+        const quarter = parseInt(document.getElementById('reportQuarter').value);
+        const room = document.getElementById('reportRoom').value || null;
+        
+        if (!year || !quarter) {
+            this.showNotification('Por favor, selecione o ano e trimestre.', 'error');
+            return;
+        }
+        
+        try {
+            const reportData = this.pdfGenerator.generateQuarterlyReport(year, quarter, room);
+            
+            this.showNotification(
+                `Relatório PDF gerado com sucesso!\n` +
+                `Período: ${quarter}º Trimestre de ${year}\n` +
+                `Pessoas: ${reportData.people}\n` +
+                `Dias com registros: ${reportData.totalDays}`,
+                'success'
+            );
+            
+            this.closePdfReportModal();
+            
+        } catch (error) {
+            this.showNotification('Erro ao gerar relatório PDF: ' + error.message, 'error');
         }
     }
 }

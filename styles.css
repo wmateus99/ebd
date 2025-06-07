@@ -585,3 +585,36 @@ header h1 {
         grid-template-columns: 1fr;
     }
 }
+
+/* Adicionar no final do arquivo */
+
+/* Notificações */
+.notification {
+    animation: slideIn 0.3s ease-out;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.notification:hover {
+    transform: translateY(-2px);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
