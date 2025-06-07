@@ -1,36 +1,222 @@
-// Componente para gerenciar o armazenamento local
+// Componente para gerenciar o armazenamento no Firebase Firestore
 class Storage {
-    static PEOPLE_KEY = 'attendance_people';
-    static ATTENDANCE_KEY = 'attendance_records';
-
-    static getPeople() {
-        const data = localStorage.getItem(this.PEOPLE_KEY);
-        return data ? JSON.parse(data) : [];
+    static PEOPLE_COLLECTION = 'people';
+    static ATTENDANCE_COLLECTION = 'attendance_records';
+    static SETTINGS_DOC = 'app_settings';
+    
+    // Cache local para melhor performance
+    static _peopleCache = null;
+    static _attendanceCache = null;
+    static _isOnline = navigator.onLine;
+    
+    static async initializeFirestore() {
+        // Aguardar Firebase estar disponível
+        while (!window.firebaseDb) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Monitorar status de conexão
+        window.addEventListener('online', () => {
+            this._isOnline = true;
+            this.syncLocalToFirestore();
+        });
+        
+        window.addEventListener('offline', () => {
+            this._isOnline = false;
+        });
+        
+        return window.firebaseDb;
     }
-
-    static savePeople(people) {
-        localStorage.setItem(this.PEOPLE_KEY, JSON.stringify(people));
+    
+    static async getPeople() {
+        try {
+            const db = await this.initializeFirestore();
+            
+            if (!this._isOnline) {
+                // Modo offline - usar localStorage
+                const data = localStorage.getItem('attendance_people');
+                return data ? JSON.parse(data) : [];
+            }
+            
+            const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
+            const querySnapshot = await getDocs(collection(db, this.PEOPLE_COLLECTION));
+            
+            const people = [];
+            querySnapshot.forEach((doc) => {
+                people.push({ id: doc.id, ...doc.data() });
+            });
+            
+            // Cache local
+            this._peopleCache = people;
+            localStorage.setItem('attendance_people', JSON.stringify(people));
+            
+            return people;
+        } catch (error) {
+            console.error('Erro ao buscar pessoas:', error);
+            // Fallback para localStorage
+            const data = localStorage.getItem('attendance_people');
+            return data ? JSON.parse(data) : [];
+        }
     }
-
-    static getAttendanceRecords() {
-        const data = localStorage.getItem(this.ATTENDANCE_KEY);
-        return data ? JSON.parse(data) : {};
+    
+    static async savePeople(people) {
+        try {
+            // Salvar localmente primeiro
+            localStorage.setItem('attendance_people', JSON.stringify(people));
+            this._peopleCache = people;
+            
+            if (!this._isOnline) {
+                return; // Será sincronizado quando voltar online
+            }
+            
+            const db = await this.initializeFirestore();
+            const { collection, doc, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
+            
+            // Limpar coleção existente
+            const querySnapshot = await getDocs(collection(db, this.PEOPLE_COLLECTION));
+            const deletePromises = [];
+            querySnapshot.forEach((docSnapshot) => {
+                deletePromises.push(deleteDoc(doc(db, this.PEOPLE_COLLECTION, docSnapshot.id)));
+            });
+            await Promise.all(deletePromises);
+            
+            // Adicionar novas pessoas
+            const savePromises = people.map(person => {
+                const docRef = doc(db, this.PEOPLE_COLLECTION, person.id);
+                return setDoc(docRef, {
+                    name: person.name,
+                    birthdate: person.birthdate,
+                    room: person.room,
+                    createdAt: person.createdAt
+                });
+            });
+            
+            await Promise.all(savePromises);
+        } catch (error) {
+            console.error('Erro ao salvar pessoas:', error);
+        }
     }
-
-    static saveAttendanceRecords(records) {
-        localStorage.setItem(this.ATTENDANCE_KEY, JSON.stringify(records));
+    
+    static async getAttendanceRecords() {
+        try {
+            const db = await this.initializeFirestore();
+            
+            if (!this._isOnline) {
+                // Modo offline - usar localStorage
+                const data = localStorage.getItem('attendance_records');
+                return data ? JSON.parse(data) : {};
+            }
+            
+            const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
+            const querySnapshot = await getDocs(collection(db, this.ATTENDANCE_COLLECTION));
+            
+            const records = {};
+            querySnapshot.forEach((doc) => {
+                records[doc.id] = doc.data();
+            });
+            
+            // Cache local
+            this._attendanceCache = records;
+            localStorage.setItem('attendance_records', JSON.stringify(records));
+            
+            return records;
+        } catch (error) {
+            console.error('Erro ao buscar registros:', error);
+            // Fallback para localStorage
+            const data = localStorage.getItem('attendance_records');
+            return data ? JSON.parse(data) : {};
+        }
     }
-
-    static clearAll() {
-        localStorage.removeItem(this.PEOPLE_KEY);
-        localStorage.removeItem(this.ATTENDANCE_KEY);
+    
+    static async saveAttendanceRecords(records) {
+        try {
+            // Salvar localmente primeiro
+            localStorage.setItem('attendance_records', JSON.stringify(records));
+            this._attendanceCache = records;
+            
+            if (!this._isOnline) {
+                return; // Será sincronizado quando voltar online
+            }
+            
+            const db = await this.initializeFirestore();
+            const { collection, doc, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
+            
+            // Limpar coleção existente
+            const querySnapshot = await getDocs(collection(db, this.ATTENDANCE_COLLECTION));
+            const deletePromises = [];
+            querySnapshot.forEach((docSnapshot) => {
+                deletePromises.push(deleteDoc(doc(db, this.ATTENDANCE_COLLECTION, docSnapshot.id)));
+            });
+            await Promise.all(deletePromises);
+            
+            // Adicionar novos registros
+            const savePromises = Object.entries(records).map(([date, dayRecords]) => {
+                const docRef = doc(db, this.ATTENDANCE_COLLECTION, date);
+                return setDoc(docRef, dayRecords);
+            });
+            
+            await Promise.all(savePromises);
+        } catch (error) {
+            console.error('Erro ao salvar registros:', error);
+        }
     }
-
-    // Métodos de exportação e importação
-    static exportData() {
+    
+    static async clearAll() {
+        try {
+            // Limpar localStorage
+            localStorage.removeItem('attendance_people');
+            localStorage.removeItem('attendance_records');
+            this._peopleCache = null;
+            this._attendanceCache = null;
+            
+            if (!this._isOnline) {
+                return;
+            }
+            
+            const db = await this.initializeFirestore();
+            const { collection, getDocs, deleteDoc } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
+            
+            // Limpar Firestore
+            const collections = [this.PEOPLE_COLLECTION, this.ATTENDANCE_COLLECTION];
+            
+            for (const collectionName of collections) {
+                const querySnapshot = await getDocs(collection(db, collectionName));
+                const deletePromises = [];
+                querySnapshot.forEach((doc) => {
+                    deletePromises.push(deleteDoc(doc.ref));
+                });
+                await Promise.all(deletePromises);
+            }
+        } catch (error) {
+            console.error('Erro ao limpar dados:', error);
+        }
+    }
+    
+    static async syncLocalToFirestore() {
+        if (!this._isOnline) return;
+        
+        try {
+            // Sincronizar pessoas
+            const localPeople = localStorage.getItem('attendance_people');
+            if (localPeople) {
+                await this.savePeople(JSON.parse(localPeople));
+            }
+            
+            // Sincronizar registros
+            const localRecords = localStorage.getItem('attendance_records');
+            if (localRecords) {
+                await this.saveAttendanceRecords(JSON.parse(localRecords));
+            }
+        } catch (error) {
+            console.error('Erro na sincronização:', error);
+        }
+    }
+    
+    // Métodos de exportação e importação (mantidos)
+    static async exportData() {
         const data = {
-            people: this.getPeople(),
-            attendanceRecords: this.getAttendanceRecords(),
+            people: await this.getPeople(),
+            attendanceRecords: await this.getAttendanceRecords(),
             exportDate: new Date().toISOString(),
             version: '1.0'
         };
@@ -49,12 +235,12 @@ class Storage {
         
         return data;
     }
-
+    
     static importData(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
                     
@@ -66,13 +252,13 @@ class Storage {
                     
                     // Fazer backup dos dados atuais
                     const currentData = {
-                        people: this.getPeople(),
-                        attendanceRecords: this.getAttendanceRecords()
+                        people: await this.getPeople(),
+                        attendanceRecords: await this.getAttendanceRecords()
                     };
                     
                     // Importar novos dados
-                    this.savePeople(data.people || []);
-                    this.saveAttendanceRecords(data.attendanceRecords || {});
+                    await this.savePeople(data.people || []);
+                    await this.saveAttendanceRecords(data.attendanceRecords || {});
                     
                     resolve({
                         imported: data,
@@ -95,7 +281,7 @@ class Storage {
             reader.readAsText(file);
         });
     }
-
+    
     static validateImportData(data) {
         // Verificar se tem a estrutura básica
         if (!data || typeof data !== 'object') {
@@ -123,10 +309,10 @@ class Storage {
         
         return true;
     }
-
-    static mergeData(importedData, mergeMode = 'replace') {
-        const currentPeople = this.getPeople();
-        const currentRecords = this.getAttendanceRecords();
+    
+    static async mergeData(importedData, mergeMode = 'replace') {
+        const currentPeople = await this.getPeople();
+        const currentRecords = await this.getAttendanceRecords();
         
         let finalPeople = [];
         let finalRecords = {};
@@ -150,8 +336,8 @@ class Storage {
             finalRecords = { ...currentRecords, ...(importedData.attendanceRecords || {}) };
         }
         
-        this.savePeople(finalPeople);
-        this.saveAttendanceRecords(finalRecords);
+        await this.savePeople(finalPeople);
+        await this.saveAttendanceRecords(finalRecords);
         
         return {
             peopleCount: finalPeople.length,

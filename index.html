@@ -8,6 +8,31 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Biblioteca para geração de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Firebase CDN -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjEZQbRNl-FJK1COJPzmeMXu9UVjm6VVU",
+            authDomain: "data-form-duvidas.firebaseapp.com",
+            projectId: "data-form-duvidas",
+            storageBucket: "data-form-duvidas.firebasestorage.app",
+            messagingSenderId: "833624000646",
+            appId: "1:833624000646:web:35d66723043a943263e907"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Tornar disponível globalmente
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+    </script>
 </head>
 <body>
     <div class="container">

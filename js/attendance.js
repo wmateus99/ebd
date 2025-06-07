@@ -1,10 +1,15 @@
 // Componente para gerenciar presenças
 class AttendanceManager {
     constructor() {
-        this.records = Storage.getAttendanceRecords();
+        this.records = {};
+        // Remover this.loadRecords() do construtor
     }
 
-    markAttendance(personId, date, status) {
+    async loadRecords() {
+        this.records = await Storage.getAttendanceRecords();
+    }
+
+    async markAttendance(personId, date, status) {
         if (!this.records[date]) {
             this.records[date] = {};
         }
@@ -14,10 +19,10 @@ class AttendanceManager {
             timestamp: new Date().toISOString()
         };
         
-        this.save();
+        await this.save();
     }
 
-    revokeAttendance(personId, date) {
+    async revokeAttendance(personId, date) {
         if (this.records[date] && this.records[date][personId]) {
             delete this.records[date][personId];
             
@@ -26,7 +31,7 @@ class AttendanceManager {
                 delete this.records[date];
             }
             
-            this.save();
+            await this.save();
         }
     }
 
@@ -63,7 +68,7 @@ class AttendanceManager {
         return count;
     }
 
-    save() {
-        Storage.saveAttendanceRecords(this.records);
+    async save() {
+        await Storage.saveAttendanceRecords(this.records);
     }
 }

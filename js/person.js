@@ -1,10 +1,15 @@
 // Componente para gerenciar pessoas
 class PersonManager {
     constructor() {
-        this.people = Storage.getPeople();
+        this.people = [];
+        // Remover this.loadPeople() do construtor
     }
 
-    addPerson(name, birthdate, room) {
+    async loadPeople() {
+        this.people = await Storage.getPeople();
+    }
+
+    async addPerson(name, birthdate, room) {
         const person = {
             id: Date.now().toString(),
             name: name.trim(),
@@ -14,22 +19,22 @@ class PersonManager {
         };
 
         this.people.push(person);
-        this.save();
+        await this.save();
         return person;
     }
 
-    deletePerson(id) {
+    async deletePerson(id) {
         this.people = this.people.filter(person => person.id !== id);
-        this.save();
+        await this.save();
         
         // Também remove os registros de presença desta pessoa
-        const attendanceRecords = Storage.getAttendanceRecords();
+        const attendanceRecords = await Storage.getAttendanceRecords();
         Object.keys(attendanceRecords).forEach(date => {
             if (attendanceRecords[date][id]) {
                 delete attendanceRecords[date][id];
             }
         });
-        Storage.saveAttendanceRecords(attendanceRecords);
+        await Storage.saveAttendanceRecords(attendanceRecords);
     }
 
     getPeople() {
@@ -54,13 +59,13 @@ class PersonManager {
         return this.people.filter(person => person.room === room);
     }
 
-    clearAll() {
+    async clearAll() {
         this.people = [];
-        this.save();
-        Storage.clearAll();
+        await this.save();
+        await Storage.clearAll();
     }
 
-    save() {
-        Storage.savePeople(this.people);
+    async save() {
+        await Storage.savePeople(this.people);
     }
 }
