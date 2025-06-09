@@ -769,3 +769,31 @@ header h1 {
     font-style: italic;
     padding: 40px 20px;
 }
+
+
+.ajuda {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.ajuda a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.ajuda:hover {
+    background-color: #0056b3;
+}
