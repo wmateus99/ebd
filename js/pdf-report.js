@@ -98,7 +98,7 @@ class PDFReportGenerator {
         
         // Estatísticas por sala
         if (!room) {
-            ['Sala Adultos', 'Sala Jovens'].forEach(roomName => {
+            ['Sala Adultos', 'Sala Jovens', 'Sala Crianças'].forEach(roomName => {
                 const roomPeople = this.personManager.getPeople().filter(p => p.room === roomName);
                 data.roomStats[roomName] = {
                     people: roomPeople.length,
@@ -122,11 +122,14 @@ class PDFReportGenerator {
         }
         
         // Estatísticas individuais
+        // Estatísticas individuais
+        // Estatísticas individuais
         people.forEach(person => {
             let presences = 0;
             let absences = 0;
             
-            data.attendanceDays.forEach(date => {
+            // Processar TODOS os registros, não apenas do trimestre
+            Object.keys(records).forEach(date => {
                 const record = records[date] && records[date][person.id];
                 if (record) {
                     if (record.status === 'present') presences++;

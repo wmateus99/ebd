@@ -53,4 +53,5 @@ class App {
 let app;
 document.addEventListener('DOMContentLoaded', async () => {
     app = new App();
+    window.app = app; // Tornar disponível globalmente
 });

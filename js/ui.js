@@ -195,7 +195,8 @@ class UIManager {
         
         const roomStats = {
             'Sala Adultos': { people: 0, presences: 0, absences: 0 },
-            'Sala Jovens': { people: 0, presences: 0, absences: 0 }
+            'Sala Jovens': { people: 0, presences: 0, absences: 0 },
+            'Sala Crianças': { people: 0, presences: 0, absences: 0 }
         };
         
         // Contar pessoas por sala
@@ -341,6 +342,9 @@ class UIManager {
             people = people.filter(person => person.room === roomFilter);
         }
         
+        // Ordenar alfabeticamente por nome
+        people.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }));
+        
         this.peopleList.innerHTML = '';
         
         if (people.length === 0) {
@@ -372,7 +376,7 @@ class UIManager {
             <div class="person-header">
                 <div class="person-info">
                     <h3>${person.name}</h3>
-                    <p>${person.room} • Nascimento: ${new Date(person.birthdate).toLocaleDateString('pt-BR')}</p>
+                    <p>${person.room} • Nascimento: ${new Date(person.birthdate + 'T12:00:00').toLocaleDateString('pt-BR')}</p>
                 </div>
                 <div class="person-actions">
                     ${absenceCount > 0 ? `<span class="absence-count">${absenceCount} faltas</span>` : ''}
@@ -399,9 +403,9 @@ class UIManager {
         }
     }
 
-    exportData() {
+    async exportData() {
         try {
-            const exportedData = Storage.exportData();
+            const exportedData = await Storage.exportData();
             
             // Mostrar mensagem de sucesso
             this.showNotification(

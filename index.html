@@ -17,12 +17,12 @@
         
         // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBjEZQbRNl-FJK1COJPzmeMXu9UVjm6VVU",
-            authDomain: "data-form-duvidas.firebaseapp.com",
-            projectId: "data-form-duvidas",
-            storageBucket: "data-form-duvidas.firebasestorage.app",
-            messagingSenderId: "833624000646",
-            appId: "1:833624000646:web:35d66723043a943263e907"
+            apiKey: "AIzaSyAVGVGeTZttaP6GWnISHGbMGlo7-V7n3l4",
+            authDomain: "chamada-ebd-1bcd5.firebaseapp.com",
+            projectId: "chamada-ebd-1bcd5",
+            storageBucket: "chamada-ebd-1bcd5.firebasestorage.app",
+            messagingSenderId: "282445338272",
+            appId: "1:282445338272:web:32092a91f185be8b9b5bc5"
         };
         
         // Initialize Firebase
@@ -48,10 +48,12 @@
                     <input type="text" id="searchInput" placeholder="Pesquisar pessoa...">
                 </div>
                 <div class="filter-container">
+                    <!-- Filtro principal -->
                     <select id="roomFilter">
                         <option value="">Todas as Salas</option>
-                        <option value="Sala Adultos">Sala Adultos</option>
-                        <option value="Sala Jovens">Sala Jovens</option>
+                        <option value="Sala Adultos">Adultos</option>
+                        <option value="Sala Jovens">Jovens</option>
+                        <option value="Sala Crianças">Crianças</option>
                     </select>
                 </div>
                 <div class="dropdown">
@@ -62,6 +64,7 @@
                         <a href="#" id="exportDataBtn">Exportar Dados</a>
                         <a href="#" id="importDataBtn">Importar Dados</a>
                         <a href="#" id="exportPdfBtn">Relatório PDF</a>
+                        <a href="#" id="birthdayBtn">Aniversariantes</a>
                         <a href="#" id="clearAllBtn">Limpar Lista</a>
                     </div>
                 </div>
@@ -103,10 +106,12 @@
                 </div>
                 <div class="form-group">
                     <label for="reportRoom">Sala:</label>
+                    <!-- Relatório PDF -->
                     <select id="reportRoom">
                         <option value="">Todas as Salas</option>
                         <option value="Sala Adultos">Sala Adultos</option>
                         <option value="Sala Jovens">Sala Jovens</option>
+                        <option value="Sala Crianças">Sala Crianças</option>
                     </select>
                 </div>
                 <div class="form-actions">
@@ -136,10 +141,12 @@
                 </div>
                 <div class="form-group">
                     <label for="personRoom">Sala:</label>
+                    <!-- Cadastro de pessoa -->
                     <select id="personRoom" required>
                         <option value="">Selecione uma sala</option>
                         <option value="Sala Adultos">Sala Adultos</option>
                         <option value="Sala Jovens">Sala Jovens</option>
+                        <option value="Sala Crianças">Sala Crianças</option>
                     </select>
                 </div>
                 <div class="form-actions">
@@ -176,10 +183,12 @@
                         <h3>👥 Estatísticas Individuais</h3>
                         <div class="dashboard-filters">
                             <div class="filter-row">
+                                <!-- Dashboard -->
                                 <select id="dashboardRoomFilter">
                                     <option value="">Todas as Salas</option>
                                     <option value="Sala Adultos">Sala Adultos</option>
                                     <option value="Sala Jovens">Sala Jovens</option>
+                                    <option value="Sala Crianças">Sala Crianças</option>
                                 </select>
                                 <input type="text" id="dashboardSearchInput" placeholder="Pesquisar pessoa...">
                             </div>
@@ -191,11 +200,42 @@
         </div>
     </div>
 
+    <!-- Modal dos Aniversariantes -->
+    <div id="birthdayModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="birthdayClose">&times;</span>
+            <h2>🎂 Aniversariantes do Mês</h2>
+            <div class="birthday-content">
+                <div class="month-selector">
+                    <label for="birthdayMonth">Mês:</label>
+                    <select id="birthdayMonth">
+                        <option value="0">Janeiro</option>
+                        <option value="1">Fevereiro</option>
+                        <option value="2">Março</option>
+                        <option value="3">Abril</option>
+                        <option value="4">Maio</option>
+                        <option value="5">Junho</option>
+                        <option value="6">Julho</option>
+                        <option value="7">Agosto</option>
+                        <option value="8">Setembro</option>
+                        <option value="9">Outubro</option>
+                        <option value="10">Novembro</option>
+                        <option value="11">Dezembro</option>
+                    </select>
+                </div>
+                <div id="birthdayList" class="birthday-list">
+                    <!-- Lista será preenchida dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/storage.js"></script>
     <script src="js/person.js"></script>
     <script src="js/attendance.js"></script>
     <script src="js/pdf-report.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/birthday.js"></script>
 </body>
 </html>
