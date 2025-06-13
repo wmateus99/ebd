@@ -19,10 +19,6 @@ class UserManager {
         document.getElementById('createUserBtn').addEventListener('click', () => {
             this.showCreateUserModal();
         });
-        
-        document.getElementById('sendNotificationBtn').addEventListener('click', () => {
-            this.showNotificationModal();
-        });
 
         // Modal de criação de usuário
         document.getElementById('createUserClose').addEventListener('click', () => {
@@ -50,24 +46,6 @@ class UserManager {
         document.getElementById('editUserForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleEditUser();
-        });
-
-        // Modal de notificações
-        document.getElementById('notificationClose').addEventListener('click', () => {
-            this.hideNotificationModal();
-        });
-        
-        document.getElementById('cancelNotification').addEventListener('click', () => {
-            this.hideNotificationModal();
-        });
-        
-        document.getElementById('notificationForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleSendNotification();
-        });
-        
-        document.getElementById('notificationTarget').addEventListener('change', (e) => {
-            this.toggleUserSelection(e.target.value);
         });
 
         // Fechar modais clicando fora
@@ -387,80 +365,6 @@ class UserManager {
             } else {
                 this.showError('Erro ao excluir usuário');
             }
-        }
-    }
-
-    // Métodos de Notificação
-    showNotificationModal() {
-        this.loadUsersForNotification();
-        document.getElementById('notificationModal').style.display = 'block';
-        document.getElementById('notificationForm').reset();
-        document.getElementById('notificationTarget').value = 'all';
-        this.toggleUserSelection('all');
-    }
-
-    hideNotificationModal() {
-        document.getElementById('notificationModal').style.display = 'none';
-    }
-
-    loadUsersForNotification() {
-        const targetUserSelect = document.getElementById('targetUser');
-        targetUserSelect.innerHTML = '';
-        
-        const users = window.authManager.users.filter(user => user.status === 'active');
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.textContent = `${user.name} (${user.code})`;
-            targetUserSelect.appendChild(option);
-        });
-    }
-
-    toggleUserSelection(target) {
-        const userSelectGroup = document.getElementById('userSelectGroup');
-        const targetUser = document.getElementById('targetUser');
-        
-        if (target === 'individual') {
-            userSelectGroup.style.display = 'block';
-            targetUser.required = true;
-        } else {
-            userSelectGroup.style.display = 'none';
-            targetUser.required = false;
-        }
-    }
-
-    handleSendNotification() {
-        const target = document.getElementById('notificationTarget').value;
-        const targetUserId = document.getElementById('targetUser').value;
-        const title = document.getElementById('notificationTitle').value.trim();
-        const message = document.getElementById('notificationMessage').value.trim();
-        const priority = document.getElementById('notificationPriority').value;
-        
-        if (!title || !message) {
-            this.showError('Título e mensagem são obrigatórios');
-            return;
-        }
-        
-        const notification = {
-            id: 'notif-' + Date.now(),
-            title: title,
-            message: message,
-            priority: priority,
-            target: target,
-            targetUserId: target === 'individual' ? targetUserId : null,
-            senderId: window.authManager.getCurrentUser().id,
-            senderName: window.authManager.getCurrentUser().name,
-            timestamp: new Date().toISOString(),
-            read: false
-        };
-        
-        if (window.authManager.sendNotification(notification)) {
-            const targetText = target === 'all' ? 'todos os usuários' : 
-                             window.authManager.users.find(u => u.id === targetUserId)?.name || 'usuário selecionado';
-            this.showSuccess(`Aviso enviado para ${targetText} com sucesso!`);
-            this.hideNotificationModal();
-        } else {
-            this.showError('Erro ao enviar aviso');
         }
     }
 

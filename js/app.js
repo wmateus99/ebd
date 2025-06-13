@@ -105,35 +105,4 @@ function updateUserInterface(user) {
             window.location.href = 'manage-users.html';
         });
     }
-    
-    // Adicionar evento para notificações
-    const notificationsBtn = document.getElementById('notificationsBtn');
-    if (notificationsBtn) {
-        notificationsBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'notifications.html';
-        });
-        
-        // Atualizar badge de notificações
-        updateNotificationBadge(user.id);
-        
-        // Atualizar badge a cada 30 segundos
-        setInterval(() => {
-            updateNotificationBadge(user.id);
-        }, 30000);
-    }
-}
-
-// Função para atualizar o badge de notificações
-function updateNotificationBadge(userId) {
-    const badge = document.getElementById('notificationBadge');
-    if (badge && window.authManager) {
-        const unreadCount = window.authManager.getUnreadNotificationsCount(userId);
-        if (unreadCount > 0) {
-            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-            badge.style.display = 'flex';
-        } else {
-            badge.style.display = 'none';
-        }
-    }
 }

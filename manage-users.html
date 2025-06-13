@@ -73,10 +73,6 @@
                             <i class="ri-search-line"></i>
                             <input type="text" id="searchUsers" placeholder="Buscar usuários...">
                         </div>
-                        <button id="sendNotificationBtn" class="btn-warning">
-                            <i class="ri-notification-line"></i>
-                            Enviar Aviso
-                        </button>
                         <button id="createUserBtn" class="btn-primary">
                             <i class="ri-user-add-line"></i>
                             Novo Usuário
@@ -162,55 +158,6 @@
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar Alterações</button>
                     <button type="button" id="cancelEditUser" class="btn-secondary">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal de Envio de Avisos -->
-    <div id="notificationModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" id="notificationClose">&times;</span>
-            <h2>Enviar Aviso</h2>
-            <form id="notificationForm">
-                <div class="form-group">
-                    <label for="notificationTarget">Destinatário:</label>
-                    <select id="notificationTarget" required>
-                        <option value="all">Todos os Usuários</option>
-                        <option value="individual">Usuário Específico</option>
-                    </select>
-                </div>
-                
-                <div class="form-group" id="userSelectGroup" style="display: none;">
-                    <label for="targetUser">Selecionar Usuário:</label>
-                    <select id="targetUser">
-                        <!-- Usuários serão carregados aqui -->
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="notificationTitle">Título do Aviso:</label>
-                    <input type="text" id="notificationTitle" required placeholder="Ex: Reunião Importante">
-                </div>
-                
-                <div class="form-group">
-                    <label for="notificationMessage">Mensagem:</label>
-                    <textarea id="notificationMessage" required placeholder="Digite sua mensagem aqui..." rows="4"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="notificationPriority">Prioridade:</label>
-                    <select id="notificationPriority" required>
-                        <option value="low">Baixa</option>
-                        <option value="normal" selected>Normal</option>
-                        <option value="high">Alta</option>
-                        <option value="urgent">Urgente</option>
-                    </select>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Enviar Aviso</button>
-                    <button type="button" id="cancelNotification" class="btn-secondary">Cancelar</button>
                 </div>
             </form>
         </div>
