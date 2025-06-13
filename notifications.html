@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - Sistema de Presença</title>
+    <link rel="shortcut icon" href="./assets/logoEBD.svg" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1>Notificações</h1>
+                <div class="header-actions">
+                    <button id="backBtn" class="back-btn" title="Voltar">
+                        <i class="ri-arrow-left-line"></i> Voltar
+                    </button>
+                    <button id="logoutBtn" class="logout-btn" title="Sair">
+                        <i class="ri-logout-circle-line"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="notifications-container">
+                <div class="notifications-header">
+                    <h2>Suas Notificações</h2>
+                    <div class="notifications-actions">
+                        <button id="markAllReadBtn" class="btn btn-secondary">
+                            <i class="ri-check-double-line"></i> Marcar Todas como Lidas
+                        </button>
+                        <button id="clearAllNotificationsBtn" class="btn btn-danger">
+                            <i class="ri-delete-bin-line"></i> Limpar Todas
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="notificationsList" class="notifications-list">
+                    <!-- Notificações serão carregadas aqui -->
+                </div>
+                
+                <div id="noNotifications" class="no-notifications" style="display: none;">
+                    <i class="ri-notification-off-line"></i>
+                    <h3>Nenhuma notificação</h3>
+                    <p>Você não possui notificações no momento.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Confirmar Ação</h3>
+            <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+            <div class="modal-actions">
+                <button id="confirmYes" class="btn btn-danger">Sim</button>
+                <button id="confirmNo" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensagens de Sucesso e Erro -->
+    <div id="successMessage" class="message success" style="display: none;"></div>
+    <div id="errorMessage" class="message error" style="display: none;"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+</body>
+</html>

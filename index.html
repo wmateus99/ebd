@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chamada - EBD</title>
+    <title>Sistema de Presença - WM</title>
     <link rel="shortcut icon" href="./assets/logoEBD.svg" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css" integrity="sha512-kJlvECunwXftkPwyvHbclArO8wszgBGisiLeuDFwNM8ws+wKIw0sv1os3ClWZOcrEB2eRXULYUsm8OVRGJKwGA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Biblioteca para geração de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Link dos Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css" integrity="sha512-kJlvECunwXftkPwyvHbclArO8wszgBGisiLeuDFwNM8ws+wKIw0sv1os3ClWZOcrEB2eRXULYUsm8OVRGJKwGA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <!-- Firebase CDN -->
     <script type="module">
@@ -45,10 +48,17 @@
     <div class="container">
         <header>
             <div class="header-top">
-                <h1>Chamada - EBD - AD Manancial de Amor</h1>
-                <button id="themeToggle" class="theme-toggle" title="Alternar tema">
-                    <span class="theme-icon">🌙</span>
-                </button>
+                <h1>Sistema de Presença - WM</h1>
+                <div class="user-info">
+                    <span id="userWelcome" class="user-welcome"></span>
+                    <button id="notificationsBtn" class="notifications-btn" title="Notificações">
+                        <i class="ri-notification-3-line"></i>
+                        <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+                    </button>
+                    <button id="logoutBtn" class="logout-btn" title="Sair">
+                        <i class="ri-logout-circle-line"></i>
+                    </button>
+                </div>
             </div>
             <div class="controls">
                 <div class="search-container">
@@ -64,15 +74,16 @@
                     </select>
                 </div>
                 <div class="dropdown">
-                    <button class="dropdown-btn">Menu ▼</button>
+                    <button class="dropdown-btn"><i class="ri-menu-line"></i> Ferramentas ▼</button>
                     <div class="dropdown-content">
-                        <a href="#" id="dashboardBtn">Dashboard</a>
-                        <a href="#" id="addPersonBtn">Cadastrar Pessoa</a>
-                        <a href="#" id="exportDataBtn">Exportar Dados</a>
-                        <a href="#" id="importDataBtn">Importar Dados</a>
-                        <a href="#" id="exportPdfBtn">Relatório PDF</a>
-                        <a href="#" id="birthdayBtn">Aniversariantes</a>
-                        <a href="#" id="clearAllBtn">Limpar Lista</a>
+                        <a href="#" id="dashboardBtn"><i class="ri-dashboard-3-line"></i> Relatórios</a>
+                        <a href="#" id="addPersonBtn"><i class="ri-user-add-line"></i> Cadastrar Pessoa</a>
+                        <a href="#" id="exportDataBtn"><i class="ri-download-line"></i> Exportar Dados</a>
+                        <a href="#" id="importDataBtn"><i class="ri-upload-line"></i> Importar Dados</a>
+                        <a href="#" id="exportPdfBtn"><i class="ri-file-pdf-line"></i> Relatório PDF</a>
+                        <a href="#" id="birthdayBtn"><i class="ri-cake-3-line"></i> Aniversariantes</a>
+                        <a href="#" id="manageUsersBtn" style="display: none;"><i class="ri-team-line"></i> Gerenciar Usuários</a>
+                        <a href="#" id="clearAllBtn"><i class="ri-delete-bin-line"></i> Limpar Lista</a>
                     </div>
                 </div>
             </div>
@@ -168,40 +179,33 @@
     <div id="dashboardModal" class="modal">
         <div class="modal-content dashboard-modal">
             <span class="close" id="dashboardClose">&times;</span>
-            <h2>📊 Dashboard de Presenças</h2>
+            <h2><i class="ri-bar-chart-box-line"></i> Relatórios de Presença</h2>
             
             <div class="dashboard-content">
-                <div class="stats-overview">
-                    <div class="stat-card">
-                        <h3>📈 Estatísticas Gerais</h3>
-                        <div id="generalStats"></div>
-                    </div>
+                <div class="dashboard-section">
+                    <h3><i class="ri-line-chart-line"></i> Estatísticas Gerais</h3>
+                    <div id="generalStats"></div>
                 </div>
                 
-                <div class="room-stats">
-                    <div class="stat-card">
-                        <h3>🏢 Por Sala</h3>
-                        <div id="roomStats"></div>
-                    </div>
+                <div class="dashboard-section">
+                    <h3><i class="ri-building-line"></i> Por Sala</h3>
+                    <div id="roomStats"></div>
                 </div>
                 
-                <div class="individual-stats">
-                    <div class="stat-card">
-                        <h3>👥 Estatísticas Individuais</h3>
-                        <div class="dashboard-filters">
-                            <div class="filter-row">
-                                <!-- Dashboard -->
-                                <select id="dashboardRoomFilter">
-                                    <option value="">Todas as Salas</option>
-                                    <option value="Sala Adultos">Sala Adultos</option>
-                                    <option value="Sala Jovens">Sala Jovens</option>
-                                    <option value="Sala Crianças">Sala Crianças</option>
-                                </select>
-                                <input type="text" id="dashboardSearchInput" placeholder="Pesquisar pessoa...">
-                            </div>
+                <div class="dashboard-section">
+                    <h3><i class="ri-group-line"></i> Estatísticas Individuais</h3>
+                    <div class="dashboard-filters">
+                        <div class="filter-row">
+                            <select id="dashboardRoomFilter">
+                                <option value="">Todas as Salas</option>
+                                <option value="Sala Adultos">Sala Adultos</option>
+                                <option value="Sala Jovens">Sala Jovens</option>
+                                <option value="Sala Crianças">Sala Crianças</option>
+                            </select>
+                            <input type="text" id="dashboardSearchInput" placeholder="Pesquisar pessoa...">
                         </div>
-                        <div id="individualStats"></div>
                     </div>
+                    <div id="individualStats"></div>
                 </div>
             </div>
         </div>
@@ -237,11 +241,93 @@
         </div>
     </div>
 
+    <!-- Modal de Gerenciamento de Usuários -->
+    <div id="userManagerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="userManagerClose">&times;</span>
+            <h2>👥 Gerenciar Usuários</h2>
+            
+            <!-- Formulário para criar usuário -->
+            <div class="create-user-section">
+                <h3>Criar Novo Usuário</h3>
+                <form id="createUserForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newUserCode">Código:</label>
+                            <input type="text" id="newUserCode" required placeholder="Ex: USER01">
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserName">Nome:</label>
+                            <input type="text" id="newUserName" required placeholder="Nome completo">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newUserPassword">Senha:</label>
+                            <input type="password" id="newUserPassword" required placeholder="Senha">
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserRole">Tipo:</label>
+                            <select id="newUserRole" required>
+                                <option value="user">Usuário</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Criar Usuário</button>
+                </form>
+            </div>
+            
+            <!-- Lista de usuários -->
+            <div class="users-section">
+                <h3>Usuários Cadastrados</h3>
+                <div id="usersList" class="users-list">
+                    <!-- Lista será preenchida dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="editUserClose">&times;</span>
+            <h2>✏️ Editar Usuário</h2>
+            <form id="editUserForm">
+                <div class="form-group">
+                    <label for="editUserCode">Código:</label>
+                    <input type="text" id="editUserCode" required>
+                </div>
+                <div class="form-group">
+                    <label for="editUserName">Nome:</label>
+                    <input type="text" id="editUserName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editUserPassword">Nova Senha (deixe em branco para manter):</label>
+                    <input type="password" id="editUserPassword" placeholder="Nova senha">
+                </div>
+                <div class="form-group">
+                    <label for="editUserRole">Tipo:</label>
+                    <select id="editUserRole" required>
+                        <option value="user">Usuário</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar</button>
+                    <button type="button" id="cancelEditUser" class="btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/person.js"></script>
     <script src="js/attendance.js"></script>
     <script src="js/pdf-report.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/user-manager.js"></script>
     <script src="js/app.js"></script>
     <script src="js/birthday.js"></script>
 </body>

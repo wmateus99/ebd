@@ -4,10 +4,27 @@ class Storage {
     static ATTENDANCE_COLLECTION = 'attendance_records';
     static SETTINGS_DOC = 'app_settings';
     
+    // Obter nome da coleção específica do usuário
+    static getUserCollection(baseCollection) {
+        if (window.authManager && window.authManager.getCurrentUser()) {
+            const userCode = window.authManager.getCurrentUser().code;
+            return `${userCode}_${baseCollection}`;
+        }
+        return baseCollection; // Fallback para compatibilidade
+    }
+    
     // Cache local para melhor performance
     static _peopleCache = null;
     static _attendanceCache = null;
     static _isOnline = navigator.onLine;
+    
+    // Obter chave específica do usuário
+    static getUserKey(baseKey) {
+        if (window.authManager && window.authManager.getCurrentUser()) {
+            return window.authManager.getUserDataKey(baseKey);
+        }
+        return baseKey; // Fallback para compatibilidade
+    }
     
     static async initializeFirestore() {
         // Aguardar Firebase estar disponível
@@ -34,12 +51,12 @@ class Storage {
             
             if (!this._isOnline) {
                 // Modo offline - usar localStorage
-                const data = localStorage.getItem('attendance_people');
+                const data = localStorage.getItem(this.getUserKey('attendance_people'));
                 return data ? JSON.parse(data) : [];
             }
             
             const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
-            const querySnapshot = await getDocs(collection(db, this.PEOPLE_COLLECTION));
+            const querySnapshot = await getDocs(collection(db, this.getUserCollection(this.PEOPLE_COLLECTION)));
             
             const people = [];
             querySnapshot.forEach((doc) => {
@@ -48,13 +65,13 @@ class Storage {
             
             // Cache local
             this._peopleCache = people;
-            localStorage.setItem('attendance_people', JSON.stringify(people));
+            localStorage.setItem(this.getUserKey('attendance_people'), JSON.stringify(people));
             
             return people;
         } catch (error) {
             console.error('Erro ao buscar pessoas:', error);
             // Fallback para localStorage
-            const data = localStorage.getItem('attendance_people');
+            const data = localStorage.getItem(this.getUserKey('attendance_people'));
             return data ? JSON.parse(data) : [];
         }
     }
@@ -62,7 +79,7 @@ class Storage {
     static async savePeople(people) {
         try {
             // Salvar localmente primeiro
-            localStorage.setItem('attendance_people', JSON.stringify(people));
+            localStorage.setItem(this.getUserKey('attendance_people'), JSON.stringify(people));
             this._peopleCache = people;
             
             if (!this._isOnline) {
@@ -73,16 +90,17 @@ class Storage {
             const { collection, doc, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
             
             // Limpar coleção existente
-            const querySnapshot = await getDocs(collection(db, this.PEOPLE_COLLECTION));
+            const userCollection = this.getUserCollection(this.PEOPLE_COLLECTION);
+            const querySnapshot = await getDocs(collection(db, userCollection));
             const deletePromises = [];
             querySnapshot.forEach((docSnapshot) => {
-                deletePromises.push(deleteDoc(doc(db, this.PEOPLE_COLLECTION, docSnapshot.id)));
+                deletePromises.push(deleteDoc(doc(db, userCollection, docSnapshot.id)));
             });
             await Promise.all(deletePromises);
             
             // Adicionar novas pessoas
             const savePromises = people.map(person => {
-                const docRef = doc(db, this.PEOPLE_COLLECTION, person.id);
+                const docRef = doc(db, userCollection, person.id);
                 return setDoc(docRef, {
                     name: person.name,
                     birthdate: person.birthdate,
@@ -103,12 +121,12 @@ class Storage {
             
             if (!this._isOnline) {
                 // Modo offline - usar localStorage
-                const data = localStorage.getItem('attendance_records');
+                const data = localStorage.getItem(this.getUserKey('attendance_records'));
                 return data ? JSON.parse(data) : {};
             }
             
             const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
-            const querySnapshot = await getDocs(collection(db, this.ATTENDANCE_COLLECTION));
+            const querySnapshot = await getDocs(collection(db, this.getUserCollection(this.ATTENDANCE_COLLECTION)));
             
             const records = {};
             querySnapshot.forEach((doc) => {
@@ -117,13 +135,13 @@ class Storage {
             
             // Cache local
             this._attendanceCache = records;
-            localStorage.setItem('attendance_records', JSON.stringify(records));
+            localStorage.setItem(this.getUserKey('attendance_records'), JSON.stringify(records));
             
             return records;
         } catch (error) {
             console.error('Erro ao buscar registros:', error);
             // Fallback para localStorage
-            const data = localStorage.getItem('attendance_records');
+            const data = localStorage.getItem(this.getUserKey('attendance_records'));
             return data ? JSON.parse(data) : {};
         }
     }
@@ -131,7 +149,7 @@ class Storage {
     static async saveAttendanceRecords(records) {
         try {
             // Salvar localmente primeiro
-            localStorage.setItem('attendance_records', JSON.stringify(records));
+            localStorage.setItem(this.getUserKey('attendance_records'), JSON.stringify(records));
             this._attendanceCache = records;
             
             if (!this._isOnline) {
@@ -142,16 +160,17 @@ class Storage {
             const { collection, doc, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
             
             // Limpar coleção existente
-            const querySnapshot = await getDocs(collection(db, this.ATTENDANCE_COLLECTION));
+            const userCollection = this.getUserCollection(this.ATTENDANCE_COLLECTION);
+            const querySnapshot = await getDocs(collection(db, userCollection));
             const deletePromises = [];
             querySnapshot.forEach((docSnapshot) => {
-                deletePromises.push(deleteDoc(doc(db, this.ATTENDANCE_COLLECTION, docSnapshot.id)));
+                deletePromises.push(deleteDoc(doc(db, userCollection, docSnapshot.id)));
             });
             await Promise.all(deletePromises);
             
             // Adicionar novos registros
             const savePromises = Object.entries(records).map(([date, dayRecords]) => {
-                const docRef = doc(db, this.ATTENDANCE_COLLECTION, date);
+                const docRef = doc(db, userCollection, date);
                 return setDoc(docRef, dayRecords);
             });
             
@@ -163,9 +182,9 @@ class Storage {
     
     static async clearAll() {
         try {
-            // Limpar localStorage
-            localStorage.removeItem('attendance_people');
-            localStorage.removeItem('attendance_records');
+            // Limpar localStorage específico do usuário
+            localStorage.removeItem(this.getUserKey('attendance_people'));
+            localStorage.removeItem(this.getUserKey('attendance_records'));
             this._peopleCache = null;
             this._attendanceCache = null;
             
@@ -176,8 +195,8 @@ class Storage {
             const db = await this.initializeFirestore();
             const { collection, getDocs, deleteDoc } = await import('https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js');
             
-            // Limpar Firestore
-            const collections = [this.PEOPLE_COLLECTION, this.ATTENDANCE_COLLECTION];
+            // Limpar Firestore específico do usuário
+            const collections = [this.getUserCollection(this.PEOPLE_COLLECTION), this.getUserCollection(this.ATTENDANCE_COLLECTION)];
             
             for (const collectionName of collections) {
                 const querySnapshot = await getDocs(collection(db, collectionName));
@@ -197,13 +216,13 @@ class Storage {
         
         try {
             // Sincronizar pessoas
-            const localPeople = localStorage.getItem('attendance_people');
+            const localPeople = localStorage.getItem(this.getUserKey('attendance_people'));
             if (localPeople) {
                 await this.savePeople(JSON.parse(localPeople));
             }
             
             // Sincronizar registros
-            const localRecords = localStorage.getItem('attendance_records');
+            const localRecords = localStorage.getItem(this.getUserKey('attendance_records'));
             if (localRecords) {
                 await this.saveAttendanceRecords(JSON.parse(localRecords));
             }

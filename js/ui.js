@@ -10,7 +10,6 @@ class UIManager {
         this.initializeElements();
         this.bindEvents();
         this.setCurrentDate();
-        this.initializeTheme();
         this.populateYearOptions();
     }
 
@@ -22,39 +21,38 @@ class UIManager {
         this.modal = document.getElementById('addPersonModal');
         this.addPersonForm = document.getElementById('addPersonForm');
         this.dashboardModal = document.getElementById('dashboardModal');
-        this.themeToggle = document.getElementById('themeToggle');
         this.dashboardSearchInput = document.getElementById('dashboardSearchInput');
         this.pdfReportModal = document.getElementById('pdfReportModal');
         this.pdfReportForm = document.getElementById('pdfReportForm');
     }
 
-    initializeTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        this.setTheme(savedTheme);
-    }
 
-    setTheme(theme) {
-        const body = document.body;
-        const themeIcon = document.querySelector('.theme-icon');
-        
-        if (theme === 'light') {
-            body.setAttribute('data-theme', 'light');
-            themeIcon.textContent = '☀️';
-        } else {
-            body.removeAttribute('data-theme');
-            themeIcon.textContent = '🌙';
-        }
-        
-        localStorage.setItem('theme', theme);
-    }
-
-    toggleTheme() {
-        const currentTheme = document.body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        this.setTheme(newTheme);
-    }
 
     bindEvents() {
+        // Dropdown menu toggle
+        const dropdownBtn = document.querySelector('.dropdown-btn');
+        const dropdown = document.querySelector('.dropdown');
+        
+        dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('active');
+        });
+        
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        // Fechar dropdown ao clicar em um item
+        const dropdownItems = document.querySelectorAll('.dropdown-content a');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', () => {
+                dropdown.classList.remove('active');
+            });
+        });
+        
         // Pesquisa
         this.searchInput.addEventListener('input', () => this.renderPeopleList());
         
@@ -67,8 +65,7 @@ class UIManager {
             this.renderPeopleList();
         });
         
-        // Toggle de tema
-        this.themeToggle.addEventListener('click', () => this.toggleTheme());
+
         
         // Botões do menu
         document.getElementById('addPersonBtn').addEventListener('click', () => this.openModal());
@@ -120,24 +117,24 @@ class UIManager {
     }
 
     openModal() {
-        this.modal.style.display = 'block';
+        this.modal.classList.add('show');
         document.getElementById('personName').focus();
     }
 
     closeModal() {
-        this.modal.style.display = 'none';
+        this.modal.classList.remove('show');
         this.addPersonForm.reset();
     }
 
     openDashboard() {
-        this.dashboardModal.style.display = 'block';
+        this.dashboardModal.classList.add('show');
         this.dashboardSearchQuery = '';
         this.dashboardSearchInput.value = '';
         this.updateDashboard();
     }
 
     closeDashboard() {
-        this.dashboardModal.style.display = 'none';
+        this.dashboardModal.classList.remove('show');
     }
 
     updateDashboard() {
@@ -380,7 +377,7 @@ class UIManager {
                 </div>
                 <div class="person-actions">
                     ${absenceCount > 0 ? `<span class="absence-count">${absenceCount} faltas</span>` : ''}
-                    <button class="btn btn-delete" onclick="app.deletePerson('${person.id}')">Excluir</button>
+                    <button class="btn btn-delete" onclick="app.deletePerson('${person.id}')" title="Excluir"><i class="ri-delete-bin-line"></i></button>
                 </div>
             </div>
             <div class="attendance-controls">
@@ -500,12 +497,12 @@ class UIManager {
     }
 
     openPdfReportModal() {
-        this.pdfReportModal.style.display = 'block';
+        this.pdfReportModal.classList.add('show');
         this.populateYearOptions();
     }
 
     closePdfReportModal() {
-        this.pdfReportModal.style.display = 'none';
+        this.pdfReportModal.classList.remove('show');
         this.pdfReportForm.reset();
     }
 

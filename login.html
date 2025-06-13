@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EBD</title>
+    <link rel="shortcut icon" href="./assets/logoEBD.svg" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css" integrity="sha512-kJlvECunwXftkPwyvHbclArO8wszgBGisiLeuDFwNM8ws+wKIw0sv1os3ClWZOcrEB2eRXULYUsm8OVRGJKwGA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Sistema de Presença - WM</h1>
+                <p>Faça login para continuar</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="userCode">Código de Usuário:</label>
+                    <input type="text" id="userCode" name="userCode" required placeholder="Digite seu código">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="ri-login-circle-line"></i>
+                    Entrar
+                </button>
+            </form>
+            
+            <div id="loginError" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Modal de Criação de Usuário (apenas para admin) -->
+    <div id="createUserModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="createUserClose">&times;</span>
+            <h2>Criar Novo Usuário</h2>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label for="newUserCode">Código do Usuário:</label>
+                    <input type="text" id="newUserCode" required placeholder="Ex: USER01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newUserName">Nome do Usuário:</label>
+                    <input type="text" id="newUserName" required placeholder="Nome completo">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newUserPassword">Senha:</label>
+                    <input type="password" id="newUserPassword" required placeholder="Senha do usuário">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newUserRole">Tipo de Usuário:</label>
+                    <select id="newUserRole" required>
+                        <option value="user">Usuário</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newUserTitle">Título do Sistema:</label>
+                    <input type="text" id="newUserTitle" placeholder="Ex: Sistema de Presença - Igreja ABC" value="Sistema de Presença - WM">
+                    <small class="form-help">Este será o título exibido no sistema para este usuário</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Criar Usuário</button>
+                    <button type="button" id="cancelCreateUser" class="btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+</body>
+</html>

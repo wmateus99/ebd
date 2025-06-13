@@ -407,7 +407,7 @@ class PDFReportGenerator {
         doc.setFontSize(8);
         doc.setTextColor(128, 128, 128);
         doc.text(
-            'Relatório gerado automaticamente pelo Sistema de Chamada EBD',
+            'Relatório gerado automaticamente pelo Sistema de Presença - WM',
             105,
             pageHeight - 10,
             { align: 'center' }
