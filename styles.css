@@ -887,30 +887,40 @@ header h1 {
 
 
 .ajuda {
-    position: fixed;
-    bottom: 5px;
-    right: 5px;
-    z-index: 1000;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: #fff;
-    font-size: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    gap: 5px;
+    margin: 0 10px;
 }
 
 .ajuda a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
     color: #fff;
     text-decoration: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.ajuda:hover {
-    background-color: #0056b3;
+.ajuda a:hover {
+    background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.ajuda a i {
+    font-size: 16px;
+}
+
+.ajuda a span {
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 /* Estilos para Gerenciamento de Usuários */
