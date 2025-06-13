@@ -9,18 +9,51 @@ class AuthManager {
     }
 
     initializeDefaultAdmin() {
-        // Criar admin padrão se não existir
-        if (!this.users.find(user => user.code === 'ADMIN07')) {
-            this.users.push({
+        // Lista de usuários padrão para criar automaticamente
+        const defaultUsers = [
+            {
                 id: 'admin-default',
                 code: 'ADMIN07',
                 name: 'Administrador',
                 password: '123',
                 role: 'admin',
                 title: 'Sistema de Presença - WM',
-                status: 'active',
-                createdAt: new Date().toISOString()
-            });
+                status: 'active'
+            },
+            {
+                id: 'user-ebd',
+                code: 'ebd',
+                name: 'Usuário EBD',
+                password: 'ebd0001',
+                role: 'user',
+                title: 'Sistema de Presença - AD Manacial do Amor',
+                status: 'active'
+            }
+            // Para adicionar novos usuários padrão, adicione objetos aqui seguindo o mesmo formato:
+            // {
+            //     id: 'user-exemplo',
+            //     code: 'CODIGO',
+            //     name: 'Nome do Usuário',
+            //     password: 'senha123',
+            //     role: 'user', // ou 'admin'
+            //     title: 'Sistema de Presença - WM',
+            //     status: 'active'
+            // }
+        ];
+
+        // Criar usuários padrão se não existirem
+        let needsSave = false;
+        defaultUsers.forEach(defaultUser => {
+            if (!this.users.find(user => user.code === defaultUser.code)) {
+                this.users.push({
+                    ...defaultUser,
+                    createdAt: new Date().toISOString()
+                });
+                needsSave = true;
+            }
+        });
+
+        if (needsSave) {
             this.saveUsers();
         }
     }
