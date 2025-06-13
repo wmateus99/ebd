@@ -21,12 +21,21 @@ class AuthManager {
                 status: 'active'
             },
             {
-                id: 'user-ebd',
-                code: 'ebd',
-                name: 'Usuário EBD',
-                password: 'ebd0001',
+                id: 'user-ebd01',
+                code: 'ebd01',
+                name: 'Professor(a)',
+                password: '123',
                 role: 'user',
-                title: 'Sistema de Presença - AD Manacial do Amor',
+                title: 'Sistema de Presença - AD Manancial do Amor',
+                status: 'active'
+            },
+            {
+                id: 'user-ebd02',
+                code: 'ebd02',
+                name: 'Professor(a)',
+                password: '123',
+                role: 'user',
+                title: 'Sistema de Presença - Mateus Santos',
                 status: 'active'
             }
             // Para adicionar novos usuários padrão, adicione objetos aqui seguindo o mesmo formato:
