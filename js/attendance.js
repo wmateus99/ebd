@@ -9,14 +9,15 @@ class AttendanceManager {
         this.records = await Storage.getAttendanceRecords();
     }
 
-    async markAttendance(personId, date, status) {
+    async markAttendance(personId, date, status, reason = null) {
         if (!this.records[date]) {
             this.records[date] = {};
         }
         
         this.records[date][personId] = {
-            status, // 'present' ou 'absent'
-            timestamp: new Date().toISOString()
+            status, // 'present', 'absent', ou 'justified'
+            timestamp: new Date().toISOString(),
+            reason: reason // motivo da falta justificada
         };
         
         await this.save();
@@ -53,6 +54,26 @@ class AttendanceManager {
         });
         
         return count;
+    }
+
+    getJustifiedAbsenceCount(personId) {
+        let count = 0;
+        
+        Object.keys(this.records).forEach(date => {
+            if (this.records[date][personId] && 
+                this.records[date][personId].status === 'justified') {
+                count++;
+            }
+        });
+        
+        return count;
+    }
+
+    getAttendanceRecord(personId, date) {
+        if (this.records[date] && this.records[date][personId]) {
+            return this.records[date][personId];
+        }
+        return null;
     }
 
     getPresenceCount(personId) {

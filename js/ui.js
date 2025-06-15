@@ -149,6 +149,7 @@ class UIManager {
         
         let totalPresences = 0;
         let totalAbsences = 0;
+        let totalJustified = 0;
         let totalDays = Object.keys(records).length;
         let activePeople = people.length;
         
@@ -156,10 +157,11 @@ class UIManager {
             Object.values(dayRecords).forEach(record => {
                 if (record.status === 'present') totalPresences++;
                 if (record.status === 'absent') totalAbsences++;
+                if (record.status === 'justified') totalJustified++;
             });
         });
         
-        const totalRecords = totalPresences + totalAbsences;
+        const totalRecords = totalPresences + totalAbsences + totalJustified;
         const presenceRate = totalRecords > 0 ? ((totalPresences / totalRecords) * 100).toFixed(1) : 0;
         
         document.getElementById('generalStats').innerHTML = `
@@ -178,6 +180,10 @@ class UIManager {
             <div class="stat-item">
                 <span class="stat-label">Total de Faltas:</span>
                 <span class="stat-value negative">${totalAbsences}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Faltas Justificadas:</span>
+                <span class="stat-value warning">${totalJustified}</span>
             </div>
             <div class="stat-item">
                 <span class="stat-label">Taxa de Presença:</span>
@@ -274,7 +280,8 @@ class UIManager {
         filteredPeople.forEach(person => {
             const presences = this.attendanceManager.getPresenceCount(person.id);
             const absences = this.attendanceManager.getAbsenceCount(person.id);
-            const total = presences + absences;
+            const justified = this.attendanceManager.getJustifiedAbsenceCount(person.id);
+            const total = presences + absences + justified;
             const rate = total > 0 ? ((presences / total) * 100).toFixed(1) : 0;
             
             individualStatsHTML += `
@@ -289,6 +296,10 @@ class UIManager {
                         <div class="mini-stat">
                             <div class="mini-stat-label">Faltas</div>
                             <div class="mini-stat-value negative">${absences}</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-label">Justificadas</div>
+                            <div class="mini-stat-value warning">${justified}</div>
                         </div>
                         <div class="mini-stat">
                             <div class="mini-stat-label">Total</div>
@@ -360,13 +371,27 @@ class UIManager {
         card.className = 'person-card';
         
         const attendanceStatus = this.attendanceManager.getAttendanceStatus(person.id, this.currentDate);
+        const attendanceRecord = this.attendanceManager.getAttendanceRecord(person.id, this.currentDate);
         const absenceCount = this.attendanceManager.getAbsenceCount(person.id);
+        const justifiedCount = this.attendanceManager.getJustifiedAbsenceCount(person.id);
         
         let statusDisplay = '';
         if (attendanceStatus === 'present') {
             statusDisplay = '<span class="status-present">✓ Presente</span>';
         } else if (attendanceStatus === 'absent') {
             statusDisplay = '<span class="status-absent">✗ Falta</span>';
+        } else if (attendanceStatus === 'justified') {
+            const reason = attendanceRecord && attendanceRecord.reason ? attendanceRecord.reason : 'Sem motivo especificado';
+            statusDisplay = `<span class="status-justified">⚠ Falta Justificada</span><div class="justified-reason">Motivo: ${reason}</div>`;
+        }
+        
+        // Contador de faltas
+        let absenceDisplay = '';
+        if (absenceCount > 0 || justifiedCount > 0) {
+            const parts = [];
+            if (absenceCount > 0) parts.push(`${absenceCount} faltas`);
+            if (justifiedCount > 0) parts.push(`${justifiedCount} justificadas`);
+            absenceDisplay = `<span class="absence-count">${parts.join(' • ')}</span>`;
         }
         
         card.innerHTML = `
@@ -376,13 +401,14 @@ class UIManager {
                     <p>${person.room} • Nascimento: ${new Date(person.birthdate + 'T12:00:00').toLocaleDateString('pt-BR')}</p>
                 </div>
                 <div class="person-actions">
-                    ${absenceCount > 0 ? `<span class="absence-count">${absenceCount} faltas</span>` : ''}
+                    ${absenceDisplay}
                     <button class="btn btn-delete" onclick="app.deletePerson('${person.id}')" title="Excluir"><i class="ri-delete-bin-line"></i></button>
                 </div>
             </div>
             <div class="attendance-controls">
                 <button class="btn btn-present" onclick="app.markAttendance('${person.id}', 'present')">Presente</button>
                 <button class="btn btn-absent" onclick="app.markAttendance('${person.id}', 'absent')">Falta</button>
+                <button class="btn btn-justified" onclick="app.markJustifiedAbsence('${person.id}')">Falta Justificada</button>
                 ${attendanceStatus ? `<button class="btn btn-revoke" onclick="app.revokeAttendance('${person.id}')">Revogar</button>` : ''}
             </div>
             <div class="attendance-status">
@@ -393,12 +419,31 @@ class UIManager {
         return card;
     }
 
-    clearAll() {
-        if (confirm('Tem certeza que deseja excluir todas as pessoas e registros? Esta ação não pode ser desfeita.')) {
-            this.personManager.clearAll();
-            this.renderPeopleList();
-        }
+async clearAll() {
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: 'Deseja excluir todas as pessoas e registros? Esta ação não pode ser desfeita.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir tudo!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+        this.personManager.clearAll();
+        this.renderPeopleList();
+
+        // Alerta de sucesso opcional
+        Swal.fire(
+            'Excluído!',
+            'Todos os registros foram apagados.',
+            'success'
+        );
     }
+}
+
 
     async exportData() {
         try {

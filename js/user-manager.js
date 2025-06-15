@@ -224,30 +224,47 @@ class UserManager {
         alert('Usuário atualizado com sucesso!');
     }
 
-    deleteUser(userId) {
-        const user = this.users.find(u => u.id === userId);
-        if (!user) return;
+async deleteUser(userId) {
+    const user = this.users.find(u => u.id === userId);
+    if (!user) return;
 
-        // Não permitir excluir o próprio usuário
-        if (window.authManager.getCurrentUser().id === userId) {
-            alert('Você não pode excluir seu próprio usuário!');
-            return;
-        }
-
-        // Confirmar exclusão
-        if (!confirm(`Tem certeza que deseja excluir o usuário ${user.name}?`)) {
-            return;
-        }
-
-        // Remover usuário
-        this.users = this.users.filter(u => u.id !== userId);
-        this.saveUsers();
-
-        // Atualizar lista
-        this.renderUsersList();
-
-        alert('Usuário excluído com sucesso!');
+    // Não permitir excluir o próprio usuário
+    if (window.authManager.getCurrentUser().id === userId) {
+        await Swal.fire({
+            icon: 'error',
+            title: 'Ação inválida',
+            text: 'Você não pode excluir seu próprio usuário!'
+        });
+        return;
     }
+
+    // Confirmar exclusão
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: `Deseja excluir o usuário ${user.name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Remover usuário
+    this.users = this.users.filter(u => u.id !== userId);
+    this.saveUsers();
+    this.renderUsersList();
+
+    // Alerta de sucesso
+    await Swal.fire({
+        icon: 'success',
+        title: 'Excluído!',
+        text: `Usuário ${user.name} foi removido com sucesso.`
+    });
+}
+
 
     saveUsers() {
         if (window.authManager) {

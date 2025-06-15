@@ -35,18 +35,57 @@ class App {
         this.uiManager.renderPeopleList();
     }
 
+async markJustifiedAbsence(personId) {
+    const { value: reason } = await Swal.fire({
+        title: 'Justificar Falta',
+        input: 'text',
+        inputLabel: 'Digite o motivo da falta justificada:',
+        inputPlaceholder: 'Ex: Estava doente',
+        showCancelButton: true,
+        confirmButtonText: 'Justificar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (reason && reason.trim()) {
+        await this.attendanceManager.markAttendance(personId, this.uiManager.currentDate, 'justified', reason.trim());
+        this.uiManager.renderPeopleList();
+    }
+}
+
+
     async revokeAttendance(personId) {
         await this.attendanceManager.revokeAttendance(personId, this.uiManager.currentDate);
         this.uiManager.renderPeopleList();
     }
 
-    async deletePerson(personId) {
-        const person = this.personManager.getPersonById(personId);
-        if (person && confirm(`Tem certeza que deseja excluir ${person.name}?`)) {
-            await this.personManager.deletePerson(personId);
-            this.uiManager.renderPeopleList();
-        }
+async deletePerson(personId) {
+    const person = this.personManager.getPersonById(personId);
+    if (!person) return;
+
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: `Deseja excluir ${person.name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6'
+    });
+
+    if (result.isConfirmed) {
+        await this.personManager.deletePerson(personId);
+        this.uiManager.renderPeopleList();
+
+        // Alerta de sucesso opcional
+        await Swal.fire({
+            icon: 'success',
+            title: 'Excluído!',
+            text: `${person.name} foi removido com sucesso.`
+        });
     }
+}
+
 }
 
 // Inicializar a aplicação quando a página carregar
@@ -89,13 +128,25 @@ function updateUserInterface(user) {
     
     // Adicionar evento de logout
     const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('Tem certeza que deseja sair?')) {
-                window.authManager.logout();
-            }
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        const result = await Swal.fire({
+            title: 'Deseja sair?',
+            text: 'Tem certeza que deseja sair da conta?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, sair',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6'
         });
-    }
+
+        if (result.isConfirmed) {
+            window.authManager.logout();
+        }
+    });
+}
+
     
     // Adicionar evento para gerenciar usuários (admin)
     const manageUsersBtn = document.getElementById('manageUsersBtn');
